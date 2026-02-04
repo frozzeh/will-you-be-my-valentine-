@@ -3,178 +3,649 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valentine's Day</title>
+    <title>Will You Be My Valentine?</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --bg-color: #fdf5e6; /* Кремовый фон как на скринах */
-            --text-color: #5d4037;
-            --pink-accent: #ff8a80;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffd6e8 0%, #ffe4f0 100%);
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .photo {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            color: #ff1493;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-yes {
+            background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            color: white;
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+            color: #2c3e50;
+            transition: none !important;
+        }
+        
+        .btn-no.teleporting {
+            position: fixed;
+        }
+
+        .btn-no.hidden {
+            display: none;
+        }
+
+        /* Gift Selection Screen */
+        .gift-header-img {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+        }
+
+        .gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .gift-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.2);
+        }
+
+        .gift-box:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+        }
+
+        .gift-box img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+
+        .gift-box p {
+            color: #ff1493;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Gift Detail Screens */
+        .gift-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .btn-back {
+            margin-top: 30px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            color: white;
+        }
+
+        /* Music Player - Spotify Style */
+        .music-player {
+            padding: 0;
+            background: #ffffff;
+            border-radius: 20px;
             overflow: hidden;
         }
 
-        .container { text-align: center; width: 100%; padding: 20px; box-sizing: border-box; }
+        .music-player-header {
+            padding: 30px 30px 20px;
+            background: linear-gradient(180deg, #ff69b4 0%, #ffffff 100%);
+        }
 
-        /* Экраны */
-        .screen { display: none; flex-direction: column; align-items: center; }
-        .active { display: flex; }
+        .music-player h2 {
+            color: #ff1493;
+            margin-bottom: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
 
-        /* Главное фото */
-        .main-photo {
-            width: 200px;
-            height: 200px;
-            border-radius: 20px;
+        .album-art-container {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .album-art {
+            width: 280px;
+            height: 280px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            box-shadow: 0 8px 24px rgba(255, 20, 147, 0.3);
+            position: relative;
+            overflow: hidden;
             object-fit: cover;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
-        /* Кнопки */
-        .btn-group { position: relative; height: 100px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 20px; }
-        
-        button {
-            padding: 12px 30px;
-            border-radius: 25px;
-            border: none;
-            font-weight: bold;
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .album-art::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.1) 100%);
+        }
+
+        .track-info {
+            background: transparent;
+            padding: 20px 30px;
+            border-radius: 0;
+            margin: 0;
+            box-shadow: none;
+            text-align: left;
+        }
+
+        .track-info h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .track-info p {
+            color: #7f8c8d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .player-controls-section {
+            padding: 0 30px 30px;
+        }
+
+        .progress-container {
+            background: #e0e0e0;
+            height: 4px;
+            border-radius: 2px;
+            margin: 12px 0 8px;
+            overflow: hidden;
             cursor: pointer;
-            transition: 0.3s;
+            position: relative;
         }
 
-        #yesBtn { background-color: #333; color: white; }
-        #noBtn { background-color: #eee; color: #333; position: absolute; z-index: 10; }
+        .progress-container:hover .progress-bar {
+            background: #ff1493;
+        }
 
-        /* Подарки (Коробки) */
-        .gifts-grid { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
-        .gift-box { cursor: pointer; transition: transform 0.3s; }
-        .gift-box:hover { transform: scale(1.1); }
-        .gift-box img { width: 80px; }
+        .progress-bar {
+            background: #ff69b4;
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+            border-radius: 2px;
+            position: relative;
+        }
 
-        /* Контент подарка */
-        .gift-content { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 400px; width: 90%; }
-        .back-btn { margin-top: 30px; background: #333; color: white; padding: 10px 25px; }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ff1493;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
 
-        .player-mock { background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        .progress-container:hover .progress-bar::after {
+            opacity: 1;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        .music-controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 24px;
+        }
+
+        .play-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #ff1493;
+            color: #ffffff;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 16px rgba(255, 20, 147, 0.3);
+            padding: 0;
+            padding-left: 3px;
+        }
+
+        .play-btn.playing {
+            padding-left: 0;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.06);
+            background: #ff1493;
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.5);
+        }
+
+        .play-btn:active {
+            transform: scale(1);
+        }
+
+        .btn-back {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .btn-back:hover {
+            background: linear-gradient(135deg, #ff1493 0%, #e91e63 100%);
+        }
+
+        @media (max-width: 600px) {
+            .album-art {
+                width: 240px;
+                height: 240px;
+            }
+        }
+
+        /* Image Gift */
+        .image-gift img {
+            width: 100%;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        /* Message Gift */
+        .message-gift {
+            padding: 20px;
+        }
+
+        .message-gift p {
+            color: #2c3e50;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .gifts-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .gift-box {
+                padding: 20px;
+            }
+            
+            .gift-box img {
+                width: 60px;
+                height: 60px;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <div id="screen-question" class="screen active container">
-        <img id="status-photo" src="photo1.jpg" class="main-photo">
-        <h1 id="main-title">Will You Be My Valentine?</h1>
-        <div class="btn-group">
-            <button id="yesBtn">Yes</button>
-            <button id="noBtn">No</button>
-        </div>
-    </div>
-
-    <div id="screen-choice" class="screen container">
-        <img src="choose_gift_top.png" style="width: 150px; margin-bottom: 10px;">
-        <h2>Choose a Gift!</h2>
-        <div class="gifts-grid">
-            <div class="gift-box" onclick="showGift(1)">
-                <img src="gift_box.png"><br>Песня
-            </div>
-            <div class="gift-box" onclick="showGift(2)">
-                <img src="gift_box.png"><br>Котик
-            </div>
-            <div class="gift-box" onclick="showGift(3)">
-                <img src="gift_box.png"><br>Послание
+    <!-- Start Screen -->
+    <div class="container">
+        <div id="startScreen" class="screen active">
+            <img id="mainPhoto" src="photo1.jpg" alt="Valentine" class="photo">
+            <h1 id="mainTitle">Will You Be My Valentine?</h1>
+            <div class="buttons-container" id="buttonsContainer">
+                <button class="btn-yes" id="btnYes">Yes</button>
+                <button class="btn-no" id="btnNo">No</button>
             </div>
         </div>
-    </div>
 
-    <div id="gift-1" class="screen container">
-        <div class="gift-content">
-            <h3>🎵 Твоя песня</h3>
-            <div class="player-mock">
-                 <audio controls style="width: 100%;"><source src="music.mp3" type="audio/mpeg"></audio>
+        <!-- Gift Selection Screen -->
+        <div id="giftScreen" class="screen">
+            <img id="celebrationPhoto" src="celebration.jpg" alt="Celebration" class="gift-header-img">
+            <h1>Я так и знал!</h1>
+            <h2 style="color: #ff69b4; font-size: 1.5rem; margin-top: -20px; margin-bottom: 20px;">Choose a Gift!</h2>
+            <div class="gifts-grid">
+                <div class="gift-box" onclick="showGift(1)">
+                    <img src="gift_box.png" alt="Gift" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Crect fill=%22%23ff69b4%22 width=%2280%22 height=%2280%22 rx=%2210%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2240%22%3E🎁%3C/text%3E%3C/svg%3E'">
+                    <p>Gift 1</p>
+                </div>
+                <div class="gift-box" onclick="showGift(2)">
+                    <img src="gift_box.png" alt="Gift" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Crect fill=%22%23ff69b4%22 width=%2280%22 height=%2280%22 rx=%2210%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2240%22%3E🎁%3C/text%3E%3C/svg%3E'">
+                    <p>Gift 2</p>
+                </div>
+                <div class="gift-box" onclick="showGift(3)">
+                    <img src="gift_box.png" alt="Gift" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2280%22%3E%3Crect fill=%22%23ff69b4%22 width=%2280%22 height=%2280%22 rx=%2210%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 font-size=%2240%22%3E🎁%3C/text%3E%3C/svg%3E'">
+                    <p>Gift 3</p>
+                </div>
             </div>
-            <button class="back-btn" onclick="goBack()">Go Back</button>
         </div>
-    </div>
 
-    <div id="gift-2" class="screen container">
-        <div class="gift-content">
-            <h3>🐱 Для тебя</h3>
-            <img src="cat.jpg" style="width: 100%; border-radius: 15px;">
-            <button class="back-btn" onclick="goBack()">Go Back</button>
+        <!-- Gift 1: Music Player -->
+        <div id="gift1Screen" class="screen">
+            <div class="gift-content music-player">
+                <div class="music-player-header">
+                    <h2>🎵 For You</h2>
+                </div>
+                <div class="album-art-container">
+                    <div class="album-art" id="albumArt">
+                        <img src="album-cover.jpg" alt="Album Cover" onerror="this.style.display='none'; this.parentElement.innerHTML='🎼';">
+                    </div>
+                </div>
+                <div class="track-info">
+                    <h3 id="songTitle">Your Favorite Song</h3>
+                    <p id="artistName">Artist Name</p>
+                </div>
+                <audio id="audioPlayer">
+                    <source src="your-song.mp3" type="audio/mpeg">
+                </audio>
+                <div class="player-controls-section">
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                    <div class="music-controls">
+                        <button class="play-btn" id="playPauseBtn" onclick="togglePlay()">▶</button>
+                    </div>
+                </div>
+                <button class="btn-back" onclick="backToGifts()">Go Back</button>
+            </div>
         </div>
-    </div>
 
-    <div id="gift-3" class="screen container">
-        <div class="gift-content">
-            <h3>✉️ Сообщение</h3>
-            <p>Здесь твой очень длинный и красивый текст для неё...</p>
-            <button class="back-btn" onclick="goBack()">Go Back</button>
+        <!-- Gift 2: Image -->
+        <div id="gift2Screen" class="screen">
+            <div class="gift-content image-gift">
+                <h2>🌸 For You 🌸</h2>
+                <img id="giftPhoto" src="cat-flowers.jpg" alt="Special Photo">
+                <button class="btn-back" onclick="backToGifts()">Go Back</button>
+            </div>
+        </div>
+
+        <!-- Gift 3: Message -->
+        <div id="gift3Screen" class="screen">
+            <div class="gift-content message-gift">
+                <h2>💌 A Special Message 💌</h2>
+                <p>
+                    My dearest Valentine,<br><br>
+                    Every moment with you is a treasure. You light up my world with your smile, 
+                    and my heart beats faster every time I see you. Thank you for being you, 
+                    for your kindness, your laughter, and the love you bring into my life.<br><br>
+                    Happy Valentine's Day! 💕<br><br>
+                    With all my love,<br>
+                    Your Secret Admirer 💖
+                </p>
+                <button class="btn-back" onclick="backToGifts()">Go Back</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const noBtn = document.getElementById('noBtn');
-        const yesBtn = document.getElementById('yesBtn');
-        const statusPhoto = document.getElementById('status-photo');
-        const mainTitle = document.getElementById('main-title');
-        
-        let moveCount = 0;
+        let hoverCount = 0;
+        let isPlaying = false;
+        const btnNo = document.getElementById('btnNo');
+        const btnYes = document.getElementById('btnYes');
+        const mainPhoto = document.getElementById('mainPhoto');
+        const mainTitle = document.getElementById('mainTitle');
+        const buttonsContainer = document.getElementById('buttonsContainer');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
 
-        // Прыгающая кнопка "No"
-        function moveButton(e) {
-            moveCount++;
-            
-            // Телепортация
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 50);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 50);
-            noBtn.style.left = x + 'px';
-            noBtn.style.top = y + 'px';
-
-            // Смена фото и текста
-            if (moveCount === 3) {
-                statusPhoto.src = "photo2.jpg";
-                mainTitle.innerText = "Really?";
-            }
-            if (moveCount >= 5) {
-                statusPhoto.src = "photo3.jpg";
-                noBtn.style.display = 'none';
-                mainTitle.innerText = "Ну всё, выбора нет :)";
-            }
+        // Format time helper
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        noBtn.addEventListener('mouseover', moveButton);
-        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
-
-        // Нажатие на "Yes"
-        yesBtn.addEventListener('click', () => {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            changeScreen('screen-choice');
+        // Update progress bar
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (audioPlayer.duration) {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.style.width = progress + '%';
+                currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+            }
         });
 
-        // Навигация
-        function changeScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            // Если ушли с главного экрана, включаем скролл (для мобилок)
-            document.body.style.overflowY = id === 'screen-question' ? 'hidden' : 'auto';
+        // Set duration when loaded
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // Click on progress bar to seek
+        if (progressContainer) {
+            progressContainer.addEventListener('click', (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                audioPlayer.currentTime = percent * audioPlayer.duration;
+            });
         }
 
-        function showGift(num) {
-            changeScreen('gift-' + num);
+        // Teleport button on hover/touch
+        function teleportButton() {
+            hoverCount++;
+
+            // Update at 3 hovers
+            if (hoverCount === 3) {
+                mainPhoto.src = 'photo2.jpg';
+                mainTitle.textContent = 'Really?';
+            }
+
+            // Update at 5 hovers
+            if (hoverCount === 5) {
+                mainPhoto.src = 'photo3.jpg';
+                mainTitle.textContent = 'Ну всё, выбора нет :)';
+                btnNo.classList.add('hidden');
+                return;
+            }
+
+            // Make button fixed position after first hover
+            btnNo.classList.add('teleporting');
+
+            // Random position within viewport
+            const maxX = window.innerWidth - btnNo.offsetWidth - 40;
+            const maxY = window.innerHeight - btnNo.offsetHeight - 40;
+
+            const randomX = Math.max(20, Math.random() * maxX);
+            const randomY = Math.max(20, Math.random() * maxY);
+
+            btnNo.style.left = randomX + 'px';
+            btnNo.style.top = randomY + 'px';
         }
 
-        function goBack() {
-            changeScreen('screen-choice');
+        btnNo.addEventListener('mouseover', teleportButton);
+        btnNo.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            teleportButton();
+        });
+
+        // Yes button - trigger confetti and show gifts
+        btnYes.addEventListener('click', () => {
+            // Confetti animation
+            const duration = 3 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 7,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff1493', '#ff69b4', '#ffc0cb']
+                });
+                confetti({
+                    particleCount: 7,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff1493', '#ff69b4', '#ffc0cb']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // Switch to gift screen after delay
+            setTimeout(() => {
+                switchScreen('giftScreen');
+            }, 1500);
+        });
+
+        // Screen navigation
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
         }
+
+        function showGift(giftNumber) {
+            switchScreen(`gift${giftNumber}Screen`);
+        }
+
+        function backToGifts() {
+            if (isPlaying) {
+                togglePlay();
+            }
+            switchScreen('giftScreen');
+        }
+
+        // Music player functions
+        function togglePlay() {
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+                playPauseBtn.textContent = '▶';
+                playPauseBtn.classList.remove('playing');
+            } else {
+                audioPlayer.play().catch(e => console.log('Audio play failed:', e));
+                playPauseBtn.textContent = '⏸';
+                playPauseBtn.classList.add('playing');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Auto-pause when audio ends
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            playPauseBtn.textContent = '▶';
+            playPauseBtn.classList.remove('playing');
+            progressBar.style.width = '0%';
+        });
     </script>
 </body>
 </html>
