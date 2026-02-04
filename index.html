@@ -409,7 +409,7 @@
         <!-- Gift Selection Screen -->
         <div id="giftScreen" class="screen">
             <img id="celebrationPhoto" src="celebration.jpg" alt="Celebration" class="gift-header-img">
-            <h1>Я так и знал!</h1>
+            <h1>Я так и знал! 💖</h1>
             <h2 style="color: #ff69b4; font-size: 1.5rem; margin-top: -20px; margin-bottom: 20px;">Choose a Gift!</h2>
             <div class="gifts-grid">
                 <div class="gift-box" onclick="showGift(1)">
@@ -475,13 +475,13 @@
             <div class="gift-content message-gift">
                 <h2>💌 A Special Message 💌</h2>
                 <p>
-                    My dearest Valentine,<br><br>
-                    Every moment with you is a treasure. You light up my world with your smile, 
-                    and my heart beats faster every time I see you. Thank you for being you, 
-                    for your kindness, your laughter, and the love you bring into my life.<br><br>
-                    Happy Valentine's Day! 💕<br><br>
-                    With all my love,<br>
-                    Your Secret Admirer 💖
+                    Моей любимой Звёздочке,<br><br>
+                    Каждый момент рядом с тобой ощущается как сокровище, которое я прежде не находил.
+                    Твоя улыбка освещает весь мой мир, а сердце начинает биться быстрее каждый раз, когда я вижу тебя.
+                    Спасибо тебе за твою милоту, за красоту и ту любовь, которую приносишь в мою жизнь<br><br>
+                    Счастливого дня святого Валентина! 💕<br><br>
+                    Со всей любовью,<br>
+                    твоё Солнышко 💖
                 </p>
                 <button class="btn-back" onclick="backToGifts()">Go Back</button>
             </div>
@@ -503,8 +503,7 @@
         const durationEl = document.getElementById('duration');
 
     
-        // ⏱️ НАСТРОЙКА: Начальное время воспроизведения (в секундах)
-        const START_TIME = 58; // Начнет с 00:58. Измените на нужное значение (например, 90 для 1:30)
+        const START_TIME = 58; // Начнет с 00:58.
 
         // Set start time when metadata is loaded
         audioPlayer.addEventListener('loadedmetadata', () => {
@@ -563,7 +562,7 @@
             // Update at 5 hovers
             if (hoverCount === 5) {
                 mainPhoto.src = 'photo3.jpg';
-                mainTitle.textContent = 'Ну всё, выбора нет :)';
+                mainTitle.textContent = 'Ну всё, выбора нет 😼';
                 btnNo.classList.add('hidden');
                 return;
             }
@@ -667,4 +666,5 @@
     </script>
 </body>
 </html>
+
 
