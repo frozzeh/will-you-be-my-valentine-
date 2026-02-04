@@ -3,209 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Валентинка</title>
+    <title>Valentine's Day</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        :root {
+            --bg-color: #fdf5e6; /* Кремовый фон как на скринах */
+            --text-color: #5d4037;
+            --pink-accent: #ff8a80;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #ffebee; /* Нежно-розовый фон */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* Чтобы не появлялись полосы прокрутки при прыжках */
-            text-align: center;
-        }
-
-        /* Стили для фото */
-        .photo-box {
-            width: 250px;
-            height: 250px;
-            border-radius: 15px;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-            background-color: white;
-        }
-        
-        .photo-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
         }
 
-        h1 {
-            color: #d32f2f;
-            font-size: 2rem;
-            margin-bottom: 30px;
-            transition: all 0.3s;
+        .container { text-align: center; width: 100%; padding: 20px; box-sizing: border-box; }
+
+        /* Экраны */
+        .screen { display: none; flex-direction: column; align-items: center; }
+        .active { display: flex; }
+
+        /* Главное фото */
+        .main-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         /* Кнопки */
-        .buttons {
-            display: flex;
-            gap: 20px;
-            position: relative; /* Важно для позиционирования */
-            z-index: 100;
-        }
-
+        .btn-group { position: relative; height: 100px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 20px; }
+        
         button {
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 12px 30px;
+            border-radius: 25px;
             border: none;
-            border-radius: 50px;
+            font-weight: bold;
             cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.2s;
+            transition: 0.3s;
         }
 
-        #yesBtn {
-            background-color: #ff4081;
-            color: white;
-            box-shadow: 0 4px 10px rgba(255, 64, 129, 0.4);
-        }
+        #yesBtn { background-color: #333; color: white; }
+        #noBtn { background-color: #eee; color: #333; position: absolute; z-index: 10; }
 
-        #noBtn {
-            background-color: #bdbdbd;
-            color: white;
-            position: relative; /* Сначала стоит нормально, потом станет absolute */
-        }
+        /* Подарки (Коробки) */
+        .gifts-grid { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .gift-box { cursor: pointer; transition: transform 0.3s; }
+        .gift-box:hover { transform: scale(1.1); }
+        .gift-box img { width: 80px; }
 
-        /* Блок с подарками (скрыт в начале) */
-        #gift-section {
-            display: none;
-            margin-top: 20px;
-            width: 90%;
-            max-width: 600px;
-            padding-bottom: 50px;
-        }
+        /* Контент подарка */
+        .gift-content { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 400px; width: 90%; }
+        .back-btn { margin-top: 30px; background: #333; color: white; padding: 10px 25px; }
 
-        .gift-item {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .gift-title {
-            color: #ff4081;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        /* Чтобы страница прокручивалась когда появятся подарки */
-        body.success-mode {
-            overflow-y: auto;
-            justify-content: flex-start;
-            padding-top: 50px;
-        }
+        .player-mock { background: #fff; border: 1px solid #eee; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="photo-box">
-        <img id="main-photo" src="first.jpg" alt="Foto">
+    <div id="screen-question" class="screen active container">
+        <img id="status-photo" src="photo1.jpg" class="main-photo">
+        <h1 id="main-title">Will You Be My Valentine?</h1>
+        <div class="btn-group">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
     </div>
 
-    <h1 id="main-text">Will you be my Valentine?</h1>
-
-    <div class="buttons">
-        <button id="yesBtn">Yes</button>
-        <button id="noBtn">No</button>
+    <div id="screen-choice" class="screen container">
+        <img src="choose_gift_top.png" style="width: 150px; margin-bottom: 10px;">
+        <h2>Choose a Gift!</h2>
+        <div class="gifts-grid">
+            <div class="gift-box" onclick="showGift(1)">
+                <img src="gift_box.png"><br>Песня
+            </div>
+            <div class="gift-box" onclick="showGift(2)">
+                <img src="gift_box.png"><br>Котик
+            </div>
+            <div class="gift-box" onclick="showGift(3)">
+                <img src="gift_box.png"><br>Послание
+            </div>
+        </div>
     </div>
 
-    <div id="gift-section">
-        <h2>Я так и знал! ❤️</h2>
-        <p>Подарки для тебя:</p>
-
-        <div class="gift-item">
-            <span class="gift-title">🎁 Подарок 1: Песня</span>
-            <audio controls style="width: 100%;">
-                <source src="ССЫЛКА_НА_ПЕСНЮ.mp3" type="audio/mpeg">
-                Браузер не поддерживает аудио.
-            </audio>
+    <div id="gift-1" class="screen container">
+        <div class="gift-content">
+            <h3>🎵 Твоя песня</h3>
+            <div class="player-mock">
+                 <audio controls style="width: 100%;"><source src="music.mp3" type="audio/mpeg"></audio>
+            </div>
+            <button class="back-btn" onclick="goBack()">Go Back</button>
         </div>
+    </div>
 
-        <div class="gift-item">
-            <span class="gift-title">🎁 Подарок 2: Настроение</span>
-            <img src="ССЫЛКА_НА_КОТА.jpg" style="width: 100%; border-radius: 10px;">
+    <div id="gift-2" class="screen container">
+        <div class="gift-content">
+            <h3>🐱 Для тебя</h3>
+            <img src="cat.jpg" style="width: 100%; border-radius: 15px;">
+            <button class="back-btn" onclick="goBack()">Go Back</button>
         </div>
+    </div>
 
-        <div class="gift-item">
-            <span class="gift-title">🎁 Подарок 3: Послание</span>
-            <p>Ты самая лучшая! Жду нашей встречи.</p>
+    <div id="gift-3" class="screen container">
+        <div class="gift-content">
+            <h3>✉️ Сообщение</h3>
+            <p>Здесь твой очень длинный и красивый текст для неё...</p>
+            <button class="back-btn" onclick="goBack()">Go Back</button>
         </div>
     </div>
 
     <script>
-        // Ссылки на фото (ЗАМЕНИ ТУТ)
-        const photo1 = "first.jpg"; // Обычное
-        const photo2 = "second.jpg"; // После 3 нажатий (Really?)
-        const photo3 = "third.jpg"; // После 5 нажатий (Финальное)
-
-        let clickCount = 0;
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
-        const mainPhoto = document.getElementById('main-photo');
-        const mainText = document.getElementById('main-text');
-        const giftSection = document.getElementById('gift-section');
-        const buttonsDiv = document.querySelector('.buttons');
+        const statusPhoto = document.getElementById('status-photo');
+        const mainTitle = document.getElementById('main-title');
+        
+        let moveCount = 0;
 
-        // Логика кнопки "Нет"
-        function moveNoButton() {
-            clickCount++;
-
-            // Смена позиции (прыжок)
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
+        // Прыгающая кнопка "No"
+        function moveButton(e) {
+            moveCount++;
             
-            noBtn.style.position = 'absolute';
-            noBtn.style.left = `${x}px`;
-            noBtn.style.top = `${y}px`;
+            // Телепортация
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 50);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 50);
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
 
-            // Логика 3-го нажатия
-            if (clickCount === 3) {
-                mainPhoto.src = photo2;
-                mainText.innerText = "Really?";
+            // Смена фото и текста
+            if (moveCount === 3) {
+                statusPhoto.src = "photo2.jpg";
+                mainTitle.innerText = "Really?";
             }
-
-            // Логика 5-го нажатия
-            if (clickCount >= 5) {
-                mainPhoto.src = photo3;
-                noBtn.style.display = 'none'; // Кнопка исчезает
-                mainText.innerText = "Ну всё, выбора нет :)";
+            if (moveCount >= 5) {
+                statusPhoto.src = "photo3.jpg";
+                noBtn.style.display = 'none';
+                mainTitle.innerText = "Ну всё, выбора нет :)";
             }
         }
 
-        // События для ПК и Телефона
-        noBtn.addEventListener('click', moveNoButton);
-        noBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Чтобы не нажималась стандартно
-            moveNoButton();
-        });
-        noBtn.addEventListener('mouseover', moveNoButton); // Для ПК
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
 
-        // Логика кнопки "Да"
+        // Нажатие на "Yes"
         yesBtn.addEventListener('click', () => {
-            // Салют
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-
-            // Прячем кнопки, показываем подарки
-            buttonsDiv.style.display = 'none';
-            mainText.style.display = 'none';
-            mainPhoto.style.display = 'none';
-            
-            document.body.classList.add('success-mode');
-            giftSection.style.display = 'block';
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            changeScreen('screen-choice');
         });
+
+        // Навигация
+        function changeScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            // Если ушли с главного экрана, включаем скролл (для мобилок)
+            document.body.style.overflowY = id === 'screen-question' ? 'hidden' : 'auto';
+        }
+
+        function showGift(num) {
+            changeScreen('gift-' + num);
+        }
+
+        function goBack() {
+            changeScreen('screen-choice');
+        }
     </script>
 </body>
 </html>
