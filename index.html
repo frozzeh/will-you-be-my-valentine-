@@ -439,11 +439,11 @@
                     </div>
                 </div>
                 <div class="track-info">
-                    <h3 id="songTitle">Your Favorite Song</h3>
-                    <p id="artistName">Artist Name</p>
+                    <h3 id="songTitle">I was made for lovin' you</h3>
+                    <p id="artistName">KISS</p>
                 </div>
                 <audio id="audioPlayer">
-                    <source src="your-song.mp3" type="audio/mpeg">
+                    <source src="song.mp3" type="audio/mpeg">
                 </audio>
                 <div class="player-controls-section">
                     <div class="progress-container" id="progressContainer">
@@ -501,6 +501,24 @@
         const progressContainer = document.getElementById('progressContainer');
         const currentTimeEl = document.getElementById('currentTime');
         const durationEl = document.getElementById('duration');
+
+    
+        // ⏱️ НАСТРОЙКА: Начальное время воспроизведения (в секундах)
+        const START_TIME = 58; // Начнет с 00:58. Измените на нужное значение (например, 90 для 1:30)
+
+        // Set start time when metadata is loaded
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            audioPlayer.currentTime = START_TIME;
+            durationEl.textContent = formatTime(audioPlayer.duration);
+            currentTimeEl.textContent = formatTime(START_TIME);
+            
+            // Update progress bar to reflect start position
+            if (audioPlayer.duration) {
+                const progress = (START_TIME / audioPlayer.duration) * 100;
+                progressBar.style.width = progress + '%';
+            }
+        });
+
 
         // Format time helper
         function formatTime(seconds) {
@@ -649,3 +667,4 @@
     </script>
 </body>
 </html>
+
