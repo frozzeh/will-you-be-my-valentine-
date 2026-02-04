@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Валентинка</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffebee; /* Нежно-розовый фон */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Чтобы не появлялись полосы прокрутки при прыжках */
+            text-align: center;
+        }
+
+        /* Стили для фото */
+        .photo-box {
+            width: 250px;
+            height: 250px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            color: #d32f2f;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Кнопки */
+        .buttons {
+            display: flex;
+            gap: 20px;
+            position: relative; /* Важно для позиционирования */
+            z-index: 100;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        #yesBtn {
+            background-color: #ff4081;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 64, 129, 0.4);
+        }
+
+        #noBtn {
+            background-color: #bdbdbd;
+            color: white;
+            position: relative; /* Сначала стоит нормально, потом станет absolute */
+        }
+
+        /* Блок с подарками (скрыт в начале) */
+        #gift-section {
+            display: none;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 600px;
+            padding-bottom: 50px;
+        }
+
+        .gift-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .gift-title {
+            color: #ff4081;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Чтобы страница прокручивалась когда появятся подарки */
+        body.success-mode {
+            overflow-y: auto;
+            justify-content: flex-start;
+            padding-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="photo-box">
+        <img id="main-photo" src="ССЫЛКА_НА_ФОТО_1.jpg" alt="Foto">
+    </div>
+
+    <h1 id="main-text">Will you be my Valentine?</h1>
+
+    <div class="buttons">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+    </div>
+
+    <div id="gift-section">
+        <h2>Я так и знал! ❤️</h2>
+        <p>Подарки для тебя:</p>
+
+        <div class="gift-item">
+            <span class="gift-title">🎁 Подарок 1: Песня</span>
+            <audio controls style="width: 100%;">
+                <source src="ССЫЛКА_НА_ПЕСНЮ.mp3" type="audio/mpeg">
+                Браузер не поддерживает аудио.
+            </audio>
+        </div>
+
+        <div class="gift-item">
+            <span class="gift-title">🎁 Подарок 2: Настроение</span>
+            <img src="ССЫЛКА_НА_КОТА.jpg" style="width: 100%; border-radius: 10px;">
+        </div>
+
+        <div class="gift-item">
+            <span class="gift-title">🎁 Подарок 3: Послание</span>
+            <p>Ты самая лучшая! Жду нашей встречи.</p>
+        </div>
+    </div>
+
+    <script>
+        // Ссылки на фото (ЗАМЕНИ ТУТ)
+        const photo1 = "ССЫЛКА_НА_ФОТО_1.jpg"; // Обычное
+        const photo2 = "ССЫЛКА_НА_ФОТО_2.jpg"; // После 3 нажатий (Really?)
+        const photo3 = "ССЫЛКА_НА_ФОТО_3.jpg"; // После 5 нажатий (Финальное)
+
+        let clickCount = 0;
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const mainPhoto = document.getElementById('main-photo');
+        const mainText = document.getElementById('main-text');
+        const giftSection = document.getElementById('gift-section');
+        const buttonsDiv = document.querySelector('.buttons');
+
+        // Логика кнопки "Нет"
+        function moveNoButton() {
+            clickCount++;
+
+            // Смена позиции (прыжок)
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
+            
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = `${x}px`;
+            noBtn.style.top = `${y}px`;
+
+            // Логика 3-го нажатия
+            if (clickCount === 3) {
+                mainPhoto.src = photo2;
+                mainText.innerText = "Really?";
+            }
+
+            // Логика 5-го нажатия
+            if (clickCount >= 5) {
+                mainPhoto.src = photo3;
+                noBtn.style.display = 'none'; // Кнопка исчезает
+                mainText.innerText = "Ну всё, выбора нет :)";
+            }
+        }
+
+        // События для ПК и Телефона
+        noBtn.addEventListener('click', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Чтобы не нажималась стандартно
+            moveNoButton();
+        });
+        noBtn.addEventListener('mouseover', moveNoButton); // Для ПК
+
+        // Логика кнопки "Да"
+        yesBtn.addEventListener('click', () => {
+            // Салют
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            // Прячем кнопки, показываем подарки
+            buttonsDiv.style.display = 'none';
+            mainText.style.display = 'none';
+            mainPhoto.style.display = 'none';
+            
+            document.body.classList.add('success-mode');
+            giftSection.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
